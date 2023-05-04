@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>3D Object Editing</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+    <div id="editor-container">
+      <h3>Editor</h3>
+      <label>Color:</label>
+      <input type="color" id="color-picker" value="#ffffff"><br>
+      <label>Overlay Text:</label>
+      <input type="text" id="overlay-text"><br>
+      <button id="apply-btn">Apply Changes</button>
+    </div>
+    <script>
+      // Create a renderer
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById("canvas-container").appendChild(renderer.domElement);
+
+      // Create a scene
+      var scene = new THREE.Scene();
+
+      // Create a camera
+      var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      // Create a mesh with a geometry and material
+      var geometry = new THREE.BoxGeometry(1, 1, 1);
+      var material = new THREE.MeshBasicMaterial({ color: "#ffffff" });
+      var mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      // Add a light source
+      var light = new THREE.PointLight(0xffffff, 1, 100);
+      light.position.set(0, 0, 10);
+      scene.add(light);
+
+      // Add rotation animation
+      function animate() {
+        requestAnimationFrame(animate);
+        mesh.rotation.x += 0.01;
+        mesh.rotation.y += 0.01;
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Apply editing options
+      document.getElementById("apply-btn").addEventListener("click", function() {
+        // Change color
+        var colorPicker = document.getElementById("color-picker");
+        mesh.material.color.set(colorPicker.value);
+
+        // Add overlay text
+        var overlayText = document.getElementById("overlay-text").value;
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        canvas.width = 256;
+        canvas.height = 256;
+        context.font = "80px Arial";
+        context.fillStyle = "#ffffff";
+        context.fillText(overlayText, 10, 50);
+        var texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+        var overlayMaterial = new THREE.MeshBasicMaterial({ map: texture });
+        var overlayMesh = new THREE.Mesh(geometry, overlayMaterial);
+        scene.add(overlayMesh);
+      });
+    </script>
+  </body>
+</html>
